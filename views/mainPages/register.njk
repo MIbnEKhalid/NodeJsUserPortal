@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Register User</title>
+    </head>
+    <body>
+        <h1>Register User</h1>
+        <form id="registerForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br> <br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br> <br>
+            <label for="fullName">Full Name:</label>
+            <input type="text" id="fullName" name="fullName" required><br> <br>
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+                <option value="">Select a role</option>
+                <option value="NormalAdmin">Admin</option>
+                <option value="NormalUser">User</option>
+                <option value="Guest">Guest</option>
+            </select><br><br>
+            <label for="active">Active:</label>
+            <select id="active" name="active" required>
+                <option value="">Select User Status</option>
+                <option value="TRUE">Active</option>
+                <option value="FALSE">InActive</option>
+            </select><br><br>
+            <label for="haveMailAccount">Have Mail Account:</label>
+            <input type="checkbox" id="haveMailAccount" name="haveMailAccount"><br> <br>
+            <button type="submit">Register</button>
+        </form>
+        <script>
+            document.getElementById('registerForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const formData = {
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value,
+                    fullName: document.getElementById('fullName').value,
+                    role: document.getElementById('role').value,
+                    haveMailAccount: document.getElementById('haveMailAccount').checked
+                };
+                try {
+                    const response = await fetch('/post/RegisterUser', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('User registered successfully!');
+                    } else {
+                        alert(`Error: ${
+                            result.message
+                        }`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while registering the user.');
+                }
+            });
+        </script>
+    </body>
+</html>

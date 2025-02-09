@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Home</title>
+    </head>
+    {% include "../templates/header.njk" %}
+    <style>
+        .option {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            font-size: 16px;
+        }
+        .option option {
+            padding: 10px;
+            background-color: #fff;
+            color: #333;
+        }
+        .admin {
+            color: goldenrod;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        .profile-container {
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #292929, #343434);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .profile-header h2 {
+            text-align: center;
+            font-size: 24px;
+            color: #f39c12;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-size: 16px;
+            color: #ddd;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group textarea {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background-color: #1e1e1e;
+            color: #fff;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group textarea {
+            text-align: left;
+            resize: none;
+            text-transform: none;
+        }
+        .form-group input[readonly],
+        .form-group textarea {
+            background-color: #292929;
+            color: #fff;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #f39c12;
+            box-shadow: 0 0 5px #f39c12;
+            outline: none;
+        }
+        @media(max-width: 600px) {
+            .profile-container {
+                padding: 15px;
+            }
+            .tooltip {
+                width: 150px;
+            }
+            .profile-header h2 {
+                font-size: 20px;
+            }
+            .form-group label {
+                font-size: 14px;
+            }
+            .form-group input,
+            .form-group textarea {
+                font-size: 14px;
+            }
+            .buttons {
+                font-size: 14px;
+            }
+        }
+    </style>
+    <body>
+        <br><br>
+        <section class="about" id="about">
+            <div class="content">
+                <div class="title">
+                    <span>Role, Permission & Restriction Management</span>
+                </div>
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <h2>User Profile</h2>
+                    </div>
+                    <label for="user">User:</label>
+                    <select class="option" id="user" name="user">
+                        {% for user in user %}
+                            <option value="{{ user.UserName }}">{{ user.UserName }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="profile-details">
+                        <form class="profile-form">
+                            <div class="form-group">
+                                <label for="username">
+                                    <strong>Username:</strong>
+                                </label>
+                                <input type="text" id="username" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="fullname">
+                                    <strong>Full Name:</strong>
+                                </label>
+                                <input type="text" id="fullname" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="active">
+                                    <strong>Active:</strong>
+                                </label>
+                                <input type="text" id="active" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="role">
+                                    <strong>Role:</strong>
+                                </label>
+                                <input type="text" id="role" readonly>
+                            </div>
+                            <div class="form-group role-group">
+                                <label for="restrictedGet">
+                                    <strong>Restricted Get:</strong>
+                                </label>
+                                <textarea id="restrictedGet" rows="3" class="badge" readonly></textarea>
+                            </div>
+                            <div class="form-group role-group">
+                                <label for="restrictedPost">
+                                    <strong>Restricted Post:</strong>
+                                </label>
+                                <textarea id="restrictedPost" rows="3" class="badge" readonly></textarea>
+                            </div>
+                            <br><br>
+                            <select class="option" id="role" name="role">
+                                <option value="NormalAdmin">NormalAdmin</option>
+                                <option value="NormalUser">NormalUser</option>
+                                <option value="Guest">Guest</option>
+                            </select>
+                            <a class="buttons full">Assign Role</a>
+                        </form>
+                    </div>
+                    <script>
+                        document.getElementById('user').addEventListener('change', function () {
+                            console.log(this.value);
+                            var selectedUser = this.value;
+                            const userData = {{ userJ | safe }};
+                            var user = userData;
+                            var userInfo = user.find(u => u.UserName === selectedUser);
+                            if (userInfo) {
+                                document.getElementById('username').value = userInfo.UserName;
+                                document.getElementById('active').value = userInfo.Active;
+                                document.getElementById('fullname').value = userInfo.FullName;
+                                document.getElementById('role').value = userInfo.Role;
+                                const getRestrictions = userInfo.userRestriction.get || []; // Defaults to an empty array if not present
+                                const postRestrictions = userInfo.userRestriction.post || []; // Defaults to an empty array if not present
+                                console.log("GET Restrictions:", getRestrictions);
+                                console.log("POST Restrictions:", postRestrictions);
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+        </section>
+    </body>
+    {% include "../templates/footer.njk" %}
+</html>
