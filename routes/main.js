@@ -811,10 +811,19 @@ router.post("/copy", authenticate(process.env.Main_SECRET_TOKEN), (req, res) => 
       .status(500)
       .json({ error: "Missing Neon or local PostgreSQL connection string in environment." });
   }
-
+  const isLinux = process.env.IsLinux;
   // Using full paths for Windows
-  const pgDumpPath = `"D:\\Programs\\PostgreSQL\\17\\bin\\pg_dump.exe"`;
-  const psqlPath = `"D:\\Programs\\PostgreSQL\\17\\bin\\psql.exe"`;
+  let pgDumpPath;
+  let psqlPath;
+
+  if (isLinux === "true") {
+    pgDumpPath = "pg_dump";
+    psqlPath = "psql";
+  } else {
+    pgDumpPath = `"D:\\Programs\\PostgreSQL\\17\\bin\\pg_dump.exe"`;
+    psqlPath = `"D:\\Programs\\PostgreSQL\\17\\bin\\psql.exe"`;
+  }
+
   const command = `${pgDumpPath} "${neonConnectionString}" | ${psqlPath} "${localConnectionString}"`;
 
   console.log("Executing command:", command);
