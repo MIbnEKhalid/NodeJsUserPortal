@@ -3,6 +3,18 @@
     <head>
         <title>Login</title>
         <script src="/Assets/Scripts/logout.js"></script>
+        <meta
+            name="description"
+            content="Log in to portal.mbktechstudio.com to access your resources and manage projects securely.">
+        <meta name="keywords" content="MBK Tech Studio, Web-Portal, Web, Portal, Admin-Panel, Admin, login">
+        <meta property="og:title" content="Portal Login | MBK Tech STudio"/>
+        <meta property="og:image" content="https://www.mbktechstudio.com/Assets/Images/Icon/logo.png"/>
+        <meta property="og:url" content="https://portal.mbktechstudio.com/login">
+        <script type="application/ld+json">
+            { "@context": "https://schema.org", "@type": "Organization", "name": "MBK Tech Studio", "url":
+            "https://portal.mbktechstudio.com/login", "logo": "https://www.mbktechstudio.com/Assets/Images/Icon/logo.png", "description":
+            "MBK Tech Studio: Log in to portal.mbktechstudio.com to access your resources and manage projects securely." }
+        </script>
         <style>
             .info {
                 font-family: 'Open Sans', sans-serif;
@@ -11,7 +23,7 @@
                 background-color: #d1ecf1;
                 border: 1px solid #ddd;
                 border-radius: 8px;
-                padding: 10px 5px;
+                padding: 5px 15px;
                 margin-top: 5px;
                 font-weight: 500;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -38,6 +50,16 @@
             .back:hover {
                 color: rgb(185, 185, 185);
                 transition: color 0.3s ease;
+            }
+            @media(max-width: 1200px) {
+                .user-box label {
+                    left: 2% !important;
+                }
+            }
+            @media(max-width: 1200px) {
+                .user-box label {
+                    left: 2% !important;
+                }
             }
         </style>
     </head>
@@ -74,28 +96,43 @@
                                 <i class="fas fa-eye"></i>
                             </span>
                         </div>
+                        <div class="user-box" id="tokenCon" style="display: none;">
+                            <input
+                                id="token"
+                                type="text"
+                                class="no-spinner"
+                                name="token"
+                                pattern="\d{6}"
+                                title="Token must be exactly 6 digits"
+                                maxlength="6"
+                                minlength="6"/>
+                            <label>Token</label>
+                            <span class="info-icon" onclick="tokeninfo()">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </div>
                         <div class="wrap">
                             <div class="button">
                                 <button style="font-size: 17px;" type="submit">Login</button>
                             </div>
                         </div>
-                        {% if userLoggedIn === true %}
-                            {% include "../notice/alreadyloggedin.njk" %}
-                        {% endif %}
-                        <p class="info">
-                            <span class="">
-                                <i class="fas fa-info-circle"></i>
-                            </span>By Logging In, You Are Automatically Agreeing To Our
-                            <a class="links" href="/Terms&Conditions">Use Of Terms & Conditions
-                            </a>
-                        </p>
                     </form>
-                    <div style="display: none" class="checkbox-container">
+                    <div class="checkbox-container" style="display: none;">
                         <label class="lns-checkbox">
                             <input type="checkbox" id="rememberMe">
                             <span>Remember Me</span>
                         </label>
                     </div>
+                    {% if userLoggedIn === true %}
+                        {% include "../notice/alreadyloggedin.njk" %}
+                    {% endif %}
+                    <p class="info maincssp">
+                        <span class="">
+                            <i class="fas fa-info-circle"></i>
+                        </span>By Logging In, You Are Automatically Agreeing To Our
+                        <a class="links" href="/Terms&Conditions">Use Of Terms & Conditions
+                        </a>
+                    </p>
                 </div>
             </div>
         </section>
@@ -109,6 +146,13 @@
                         'sword, please fill contact form at <a class="links" href="https://www.mbktechstudio.com/Support">mbktechstudio.com/Suppo' +
                         'rt</a> or contact me directly.<div>',
                 "What Is My Username?"
+            );
+        }
+        function tokeninfo() {
+            showMessage(
+                '<div style="">The 2FA token or Auth token is required for SuperAdmin and NormalAdmin to log in. Each user has been given' +
+                        ' an Auth Code, which they can use to generate an Auth token using any Auth App.<div>',
+                "What Is Token?"
             );
         }
         /* document.addEventListener('DOMContentLoaded', () => {
@@ -139,6 +183,10 @@
                 .getElementById('loginPassword')
                 .value
                 .trim();
+            const token = document
+                .getElementById('token')
+                .value
+                .trim(); // get token value
             if (! username || ! password) {
                 showMessage("Username and password cannot be empty", "Error");
                 return;
@@ -152,7 +200,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(
-                {username, password})
+                {username, password, token})
             })
                 .then(response => {
                     loginButton.disabled = false;
@@ -177,13 +225,24 @@
                     } else {
                         showMessage(data.message, "Error");
                         document.getElementById('loginMessage').innerText = data.message;
+                        if (data.code === 401 && data.message === "Invalid 2FA code") {
+                            console.log("data.message");
+                        }
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    showMessage(error.message, "Error");
-                    loginButton.disabled = false;
-                    loginButton.innerText = "Login";
+                    if (error.message === "Please Enter 2FA code") {
+                        showMessage("Please enter the 2FA code", "Error");
+                        const tokenCon = document.getElementById('tokenCon');
+                        const tokenInput = document.getElementById('token');
+                        tokenCon.style.display = "block";
+                        tokenInput.setAttribute('required', '');
+                    } else {
+                        console.error('Error:', error);
+                        showMessage(error.message, "Error");
+                        loginButton.disabled = false;
+                        loginButton.innerText = "Login";
+                    }
                 });
         });
         document.addEventListener('DOMContentLoaded', function () {

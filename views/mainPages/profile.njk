@@ -2,186 +2,131 @@
 <html lang="en" dir="ltr">
     <head>
         <title>User Profile</title>
-        <style>
-            .admin {
-                color: goldenrod;
-            }
-            * {
-                box-sizing: border-box;
-            }
+    </head>
+    <style>
+        .admin {
+            color: goldenrod;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        .badge {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .info-icon-j {
+            margin-left: 8px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: underline;
+            transition: color 0.3s;
+        }
+        .info-icon:hover {
+            color: #dfdfdf;
+        }
+        .demo {
+            background-color: rgb(180, 50, 40);
+            color: #fff;
+        }
+        .guest {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+        .normal-user {
+            background-color: #95a5a6;
+            color: #fff;
+        }
+        .super-admin {
+            background-color: purple;
+            color: #fff;
+        }
+        .normal-admin {
+            background-color: #27ae60;
+            color: #fff;
+        }
+        .tooltip {
+            display: none;
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-left: 30%;
+            z-index: 10;
+            width: 180px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .note {
+            font-size: 13px;
+            color: #e74c3c;
+            margin-top: 5px;
+            display: none;
+        }
+        .note.no-mail-account {
+            display: block;
+        }
+        @media(max-width: 600px) {
             .profile-container {
-                max-width: 500px;
-                margin: 30px auto;
-                padding: 20px;
-                border: 1px solid #333;
-                border-radius: 10px;
-                background: linear-gradient(145deg, #292929, #343434);
-                color: #fff;
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-                transition: transform 0.3s, box-shadow 0.3s;
+                padding: 15px;
+            }
+            .tooltip {
+                width: 150px;
             }
             .profile-header h2 {
-                text-align: center;
-                font-size: 24px;
-                color: #f39c12;
-                margin-bottom: 15px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-            .profile-form {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-            .form-group {
-                display: flex;
-                flex-direction: column;
+                font-size: 20px;
             }
             .form-group label {
-                font-size: 16px;
-                color: #ddd;
-                margin-bottom: 5px;
+                font-size: 14px;
             }
             .form-group input,
             .form-group textarea {
-                padding: 10px;
-                font-size: 16px;
-                border: 1px solid #555;
-                border-radius: 5px;
-                background-color: #1e1e1e;
-                color: #fff;
-                transition: border-color 0.3s, box-shadow 0.3s;
-            }
-            .form-group textarea {
-                text-align: left;
-                resize: none;
-                text-transform: none;
-            }
-            .form-group input[readonly],
-            .form-group textarea {
-                background-color: #292929;
-                color: #fff;
-            }
-            .form-group input:focus,
-            .form-group textarea:focus {
-                border-color: #f39c12;
-                box-shadow: 0 0 5px #f39c12;
-                outline: none;
-            }
-            .badge {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 8px 12px;
                 font-size: 14px;
-                font-weight: bold;
-                border-radius: 5px;
-                text-transform: uppercase;
-                text-align: center;
             }
-            .info-icon-j {
-                margin-left: 8px;
-                background: none;
-                border: none;
-                color: #fff;
-                font-size: 16px;
-                cursor: pointer;
-                padding: 0;
-                text-decoration: underline;
-                transition: color 0.3s;
+            .buttons {
+                font-size: 14px;
             }
-            .info-icon:hover {
-                color: #dfdfdf;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
             }
-            .demo {
-                background-color:rgb(180, 50, 40);
-                color: #fff;
+            100% {
+                transform: rotate(360deg);
             }
-            .guest {
-                background-color: #e74c3c;
-                color: #fff;
-            }
-            .normal-user {
-                background-color: #95a5a6;
-                color: #fff;
-            }
-            .super-admin {
-                background-color: purple;
-                color: #fff;
-            }
-            .normal-admin {
-                background-color: #27ae60;
-                color: #fff;
-            }
-            .tooltip {
-                display: none;
-                position: absolute;
-                background-color: #333;
-                color: #fff;
-                padding: 8px;
-                border-radius: 5px;
-                font-size: 12px;
-                margin-left: 30%;
-                z-index: 10;
-                width: 180px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            }
-            .note {
-                font-size: 13px;
-                color: #e74c3c;
-                margin-top: 5px;
-            }
-            @media(max-width: 600px) {
-                .profile-container {
-                    padding: 15px;
-                }
-                .tooltip {
-                    width: 150px;
-                }
-                .profile-header h2 {
-                    font-size: 20px;
-                }
-                .form-group label {
-                    font-size: 14px;
-                }
-                .form-group input,
-                .form-group textarea {
-                    font-size: 14px;
-                }
-                .buttons {
-                    font-size: 14px;
-                }
-            }
-            @keyframes spin {
-                0% {
-                    transform: rotate(0deg);
-                }
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-            .profile-container {
-                display: none;
-            }
-            .spinner {
-                width: 50px;
-                height: 50px;
-                border: 6px solid #f3f3f3;
-                border-top: 6px solid #f39c12;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
-            .loader {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-            }
-        </style>
-    </head>
+        }
+        .profile-container {
+            display: none;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #f39c12;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
     {% include "../templates/header.njk" %}
     <body>
         <br><br>

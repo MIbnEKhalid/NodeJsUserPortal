@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="/Assets/Style/doc.css">
     <script src="https://kit.fontawesome.com/0934e8e9d3.js" crossorigin="anonymous"></script>
     <link rel="icon" type="image/x-icon" href="/Assets/Images/dgicon.svg">
-    <link rel="stylesheet" href="/Assets/style.css">
+    <link rel="stylesheet" href="/Assets/Style/style.css">
     <script src="/Assets/Scripts/logout.js"></script>
     <script src="/Assets/Scripts/main.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -15,29 +15,27 @@
             font-size: 33px;
         }
         .logo img {
-            width: 95%;
-            height: 95%;
+            width: 11.3%;
+            height: 100%;
         }
     }
     @media(max-width: 376px) {
         nav .navbar .logo a {
             font-size: 28px;
         }
-        .logo img {
-            width: 87%;
-            height: 87%;
-        }
         nav .logout-btn {
             font-size: 10px;
+        }
+    }
+    @media(max-width: 350px) {
+        .logo img {
+            width: 11%;
+            height: 100%;
         }
     }
     @media(max-width: 339px) {
         nav .navbar .logo a {
             font-size: 26px;
-        }
-        .logo img {
-            width: 85%;
-            height: 85%;
         }
         nav .logout-btn {
             font-size: 8px;
@@ -64,7 +62,7 @@
         position: absolute;
         color: #fff;
         right: 8px;
-        top: 20px;
+        top: 18px;
         font-size: 20px;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -125,6 +123,10 @@
         transition: background-color 0.3s ease;
         text-align: center;
     }
+    nav.sticky {
+        background: rgba(0, 0, 0, 0.3) !important;
+        backdrop-filter: blur(8px) !important;
+    }
 </style>
 <header>
     <nav>
@@ -137,7 +139,7 @@
                     <img src="/Assets/Images/dg.svg" alt=""/>
                 </div>
                 <div class="text">
-                    <a href="/home">MBK Tech Studio</a>
+                    <a href="/home">Web Portal</a>
                 </div>
             </div>
         </div>
@@ -189,7 +191,7 @@
     }
     @media(max-width: 339px) {
         nav .logout-btn {
-            font-size: 0px;
+            font-size: 0;
         }
     }
 </style>

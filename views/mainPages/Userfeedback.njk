@@ -80,9 +80,9 @@
                                 card.innerHTML = `
                                     <div class="feedback-header">
                                         <div class="user">User: ${item.user} <span class="role">(${item.role})</span></div> 
-                                        <div class="timestamp">${new Date(item.timeStamp).toLocaleString()}</div>
+                                        <div class="timestamp">${formatDate(new Date(item.timeStamp))}</div>
                                     </div>
-                                    <div class="feedback">${item.feedback}</div>dd
+                                    <div class="feedback">${item.feedback}</div>
                                 `;
                                 container.appendChild(card);
                             });

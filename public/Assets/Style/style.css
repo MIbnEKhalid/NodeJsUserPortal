@@ -210,12 +210,29 @@ label {
 
 input[type="text"],
 input[type="password"],
-input[type="email"] {
+input[type="email"],
+input[type="number"] {
     width: 100%;
     padding: 10px;
     margin: 5px 0 5px 0;
     border-radius: 6px;
     box-sizing: border-box;
+}
+
+.no-spinner {
+    -moz-appearance: textfield;
+    /* Firefox */
+    appearance: textfield;
+    /* Modern browsers */
+}
+
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    /* Chrome, Safari, Edge */
+    appearance: none;
+    margin: 0;
+    /* Optional, removes margin in some cases */
 }
 
 .button {
@@ -411,6 +428,7 @@ body.blur-active {
 .messageWindow p {
     font-family: 'Roboto', sans-serif;
     font-size: 18px;
+    text-align: center;
     color: #ddd;
 }
 
@@ -480,4 +498,95 @@ body.blur-active {
     background-color: transparent;
     color: #377a77;
     transition: all 0.3s ease;
+}
+
+.profile-container {
+    max-width: 500px;
+    margin: 30px auto;
+    padding: 20px;
+    border: 1px solid #333;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #292929, #343434);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.profile-header h2 {
+    text-align: center;
+    font-size: 24px;
+    color: #f39c12;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 16px;
+    color: #ddd;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #1e1e1e;
+    color: #fff;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group textarea {
+    text-align: left;
+    resize: none;
+    text-transform: none;
+}
+
+.form-group input[readonly],
+.form-group textarea {
+    background-color: #292929;
+    color: #fff;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #f39c12;
+    box-shadow: 0 0 5px #f39c12;
+    outline: none;
+}
+
+@media(max-width: 600px) {
+    .profile-container {
+        padding: 15px;
+    }
+
+    .profile-header h2 {
+        font-size: 20px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        font-size: 14px;
+    }
+
+    .buttons {
+        font-size: 14px;
+    }
 }

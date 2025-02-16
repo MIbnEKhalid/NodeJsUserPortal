@@ -56,13 +56,55 @@
       margin-top: 20px;
       font-size: 16px;
     }
+    nav.sticky {
+      background: rgba(0, 0, 0, 0.3) !important;
+      backdrop-filter: blur(8px) !important;
+    }
+    .Servicecontainer {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .Serviceh1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .Servicegrid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    .Servicecard {
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(255, 255, 255, 0.15);
+      padding: 13px;
+      transition: box-shadow 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.5s ease;
+    }
+    .Servicecard:hover {
+      box-shadow: 0 6px 12px rgba(255, 255, 255, 0.15);
+      transition: all 0.5s ease;
+    }
+    .Servicecard h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #007bff;
+    }
+    .Servicecard p {
+      font-size: 0.875rem;
+      color:rgb(119, 127, 142);
+    }
   </style>
   <body>
     <br><br>
     <section class="about" id="about">
       <div class="content">
         <div class="title">
-          <span>Yo {{ FullName }}, Welcome To Portal</span>
+          <span>{{ FullName }}, Welcome To Portal</span>
         </div>
         {% if role == "Guest" %}
           {% include "../notice/subAdmin.njk" %}
@@ -70,6 +112,33 @@
         {% if role == "Demo" %}
           {% include "../notice/demoAccountNotice.njk" %}
         {% endif %}
+        <div class="container-t">
+          <h2 style="margin-bottom: 20px;">Usefull Links</h2>
+          <div class="Servicecontainer">
+            <div class="Servicegrid">
+              <a href="/user/profile" target="_blank" class="links Servicecard">
+                <h2>User Profile</h2>
+                <p>View Your Profile</p>
+              </a>
+              <a href="/Roles&Members" target="_blank" class="links Servicecard">
+                <h2>Roles & Members</h2>
+                <p>display all members and there role in WebPortal and projects</p>
+              </a>
+              <a href="/home" target="_blank" class="links Servicecard">
+                <h2>Create User</h2>
+                <p>For Super Admin To Create User</p>
+              </a>
+              <a href="/home" target="_blank" class="links Servicecard">
+                <h2>Unilib</h2>
+                <p>For My Uni Classmate to handle unilib.mbktechstudio.com</p>
+              </a>
+              <a href="/api/feedback" target="_blank" class="links Servicecard">
+                <h2>feedback</h2>
+                <p>For SuperAdmin to view users feedback</p>
+              </a>
+            </div>
+          </div>
+        </div>
         <div class="container-t">
           <h2>Submit Feedback or Feature Suggestion</h2>
           <form id="feedbackForm">

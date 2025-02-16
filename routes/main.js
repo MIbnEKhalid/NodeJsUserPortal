@@ -1,7 +1,8 @@
 import express from "express";
 import crypto from "crypto";
 import fetch from "node-fetch";
-import { pool } from "./pool.js"; // Import the pool
+import { pool } from "./pool.js";
+import { authenticate } from "./auth.js";
 import jwt from "jsonwebtoken";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -13,6 +14,8 @@ import { promisify } from "util";
 const PgSession = pgSession(session);
 import multer from 'multer';
 import { timeStamp } from "console";
+import { exec } from "child_process";
+import speakeasy from 'speakeasy';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -29,7 +32,7 @@ router.use(
       pool: pool, // Connection pool
       tableName: "session", // Use another table-name than the default "session" one
     }),
-    secret: "your-secret-key", // Replace with your secret key
+    secret: process.env.session_seceret_key, // Replace with your secret key
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -256,28 +259,20 @@ async function checkRestrictionFromTable(req, res, next) {
   }
 }
 
-router.get(
-  "/DatBase",
-  validateSession,
-  checkRolePermission("SuperAdmin"),
-  async (req, res) => { }
-);
+router.get("/DatBase", validateSession, checkRolePermission("SuperAdmin"), async (req, res) => {
+
+});
 
 // checkRolePermission check if User Have required Role if yes then give access
 // checkRoleRestriction check if User Have restrictedRole Role if yes then restrict access
 
-router.get(
-  "/donation/submit/",
-  checkRestrictionFromTable,
-  validateSession,
-  async (req, res) => {
-    res.render("notice/donation/formSubmit.njk");
-  }
-);
+router.get("/donation/submit/", validateSession, async (req, res) => {
+  res.render("notice/donation/formSubmit.njk");
+});
 
 //Invoke-RestMethod -Uri http://localhost:3030/terminateAllSessions -Method POST
 // Terminate all sessions route
-router.post("/terminateAllSessions", async (req, res) => {
+router.post("/terminateAllSessions", authenticate(process.env.Main_SECRET_TOKEN), async (req, res) => {
   try {
     // Update all users' SessionId to null
     await pool.query('UPDATE "Users" SET "SessionId" = NULL');
@@ -305,31 +300,26 @@ router.post("/terminateAllSessions", async (req, res) => {
   }
 });
 
-router.get(
-  "/user/profile",
-  validateSession,
-  checkRestrictionFromTable,
-  async (req, res) => {
-    try {
-      const { id } = req.session.user;
-      const query =
-        'SELECT "UserName", "FullName", "Role", "HaveMailAccount" FROM "Users" WHERE "id" = $1';
-      const result = await pool.query(query, [id]);
+router.get("/user/profile", validateSession, async (req, res) => {
+  try {
+    const { id } = req.session.user;
+    const query =
+      'SELECT "UserName", "FullName", "Role", "HaveMailAccount" FROM "Users" WHERE "id" = $1';
+    const result = await pool.query(query, [id]);
 
-      if (result.rows.length === 0) {
-        return res.status(404).send("User not found");
-      }
-
-      const user = result.rows[0];
-
-      // Pass the user details to the EJS template
-      res.render("mainPages/profile.njk", { user: JSON.stringify(user) });
-    } catch (err) {
-      console.error("Database query error:", err);
-      res.status(500).send("Internal Server Error");
+    if (result.rows.length === 0) {
+      return res.status(404).send("User not found");
     }
+
+    const user = result.rows[0];
+
+    // Pass the user details to the EJS template
+    res.render("mainPages/profile.njk", { user: JSON.stringify(user) });
+  } catch (err) {
+    console.error("Database query error:", err);
+    res.status(500).send("Internal Server Error");
   }
-);
+});
 
 router.get("/home", validateSession, async (req, res) => {
   try {
@@ -405,75 +395,62 @@ router.post("/post/submitFeedback", validateSession, async (req, res) => {
   }
 });
 
-router.get(
-  "/dashboard/Unilib/",
-  validateSession,
-  async (req, res) => {
-    res.render("mainPages/Unilib/quizass.njk");
-  }
-);
+router.get("/dashboard/Unilib/", validateSession, async (req, res) => {
+  res.render("mainPages/Unilib/quizass.njk");
+});
 
-router.get(
-  "/api/feedback",
-  checkRolePermission("SuperAdmin"),
-  async (_, res) => {
-    const feedbackFilePath = path.join(
-      __dirname,
-      "../public/Assets/feedback.json"
+router.get("/api/feedback", checkRolePermission("SuperAdmin"), async (_, res) => {
+  const feedbackFilePath = path.join(
+    __dirname,
+    "../public/Assets/feedback.json"
+  );
+  try {
+    const feedbackData = await promisify(fs.readFile)(
+      feedbackFilePath,
+      "utf-8"
     );
-    try {
-      const feedbackData = await promisify(fs.readFile)(
+    return res.render("mainPages/Userfeedback.njk", { data: feedbackData });
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      const initialFeedback = [
+        { user: "nodeBot", feedback: "file created by bot" },
+      ];
+      await writeFile(
         feedbackFilePath,
-        "utf-8"
+        JSON.stringify(initialFeedback, null, 2)
       );
-      return res.render("mainPages/Userfeedback.njk", { data: feedbackData });
-    } catch (err) {
-      if (err.code === "ENOENT") {
-        const initialFeedback = [
-          { user: "nodeBot", feedback: "file created by bot" },
-        ];
-        await writeFile(
-          feedbackFilePath,
-          JSON.stringify(initialFeedback, null, 2)
-        );
-        res.status(200).json(initialFeedback);
-      } else {
-        console.error("Error reading feedback file:", err);
-        res
-          .status(500)
-          .json({ success: false, message: "Internal Server Error" });
-      }
-    }
-  }
-);
-
-router.get(
-  "/dashboard/admin",
-  validateSession,
-  checkRolePermission("SuperAdmin"),
-  async (req, res) => {
-    try {
-      const result = await pool.query(
-        'SELECT "id","UserName","Active","FullName","Role","HaveMailAccount","userRestriction" FROM "Users"'
-      );
-      let user = result;
-      if (user) {
-        user = user.rows;
-        res.render("mainPages/adminDashboard.njk", {
-          userJ: JSON.stringify(user),
-          user,
-        });
-      } else {
-        res.status(400).json({ success: false, message: "User not found" });
-      }
-    } catch (err) {
-      console.error("Database query error:", err);
+      res.status(200).json(initialFeedback);
+    } else {
+      console.error("Error reading feedback file:", err);
       res
         .status(500)
         .json({ success: false, message: "Internal Server Error" });
     }
   }
-);
+});
+
+router.get("/dashboard/admin", validateSession, checkRolePermission("SuperAdmin"), async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT "id","UserName","Active","FullName","Role","HaveMailAccount","userRestriction" FROM "Users"'
+    );
+    let user = result;
+    if (user) {
+      user = user.rows;
+      res.render("mainPages/adminDashboard.njk", {
+        userJ: JSON.stringify(user),
+        user,
+      });
+    } else {
+      res.status(400).json({ success: false, message: "User not found" });
+    }
+  } catch (err) {
+    console.error("Database query error:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+});
 
 // Endpoint for validating the session
 router.get("/validate-session", async (req, res) => {
@@ -483,11 +460,39 @@ router.get("/validate-session", async (req, res) => {
   // If session is valid
   res.status(200).json({ message: "Session is valid" });
 });
+
 let count = 0;
+
+function _2fa(token) {
+  // Use a shared secret for SuperAdmin stored as an environment variable
+  const sharedSecret = process.env.SUPERADMIN_2FA_KEY;
+  if (!sharedSecret) {
+    return res.status(500).json({ error: 'Server configuration error.' });
+  }
+
+  const tokenValidates = speakeasy.totp.verify({
+    secret: sharedSecret,
+    encoding: 'base32',
+    token: token,
+    window: 1 // Allows a margin for clock drift, optional
+  });
+
+  if (!tokenValidates) {
+    return res.status(401).json({ error: 'Invalid 2FA code' });
+  }
+}
+
+router.get("/2fa", async (req, res) => {
+  res.render("mainPages/adminDashboard.njk");
+});
+
+router.get("/Credits", async (req, res) => {
+  res.render("staticPage/Credits.njk");
+});
 
 // Login route
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, token } = req.body;
 
   if (!username || !password) {
     console.log("Login attempt with missing username or password");
@@ -527,6 +532,45 @@ router.post("/login", async (req, res) => {
       return res
         .status(403)
         .json({ success: false, message: "Account is inactive" });
+    }
+
+    // Check if the password matches
+    if ((user.Role === "SuperAdmin" && user.UserName === "ibnekhalid" && !token) && process.env._2faEnable === "true") {
+      console.log(`2FA code required for SuperAdmin: \"${username}\"`);
+      return res.status(401).json({ success: false, message: "Please Enter 2FA code" });
+    }
+
+    if ((user.Role === "SuperAdmin" && user.UserName === "ibnekhalid") && process.env._2faEnable === "true") {
+      // Use a shared secret for SuperAdmin stored as an environment variable
+      let sharedSecret;
+
+      if (user.UserName === "ibnekhalid")
+        sharedSecret = process.env.SUPERADMIN_2FA_KEY;
+
+      else if (user.UserName === "maaz.waheed")
+        sharedSecret = process.env.SUPERADMIN_2FA_KEY;
+
+      if (!sharedSecret) {
+        console.error('Server configuration error: Missing SUPERADMIN_2FA_KEY');
+        return res.status(500).json({ error: 'Server configuration error.' });
+      }
+
+      const expectedToken = speakeasy.totp({
+        secret: sharedSecret,
+        encoding: 'base32'
+      });
+
+      const tokenValidates = speakeasy.totp.verify({
+        secret: sharedSecret,
+        encoding: 'base32',
+        token: token,
+        window: 1 // Allows a margin for clock drift, optional
+      });
+
+      if (!tokenValidates) {
+        console.log(`Invalid 2FA code for SuperAdmin: \"${username}\". Expected code: ${expectedToken} and received code: ${token}`);
+        return res.status(401).json({ success: false, message: "Invalid 2FA code" });
+      }
     }
 
     // Generate session ID
@@ -610,7 +654,7 @@ router.get("/FAQs", async (req, res) => {
   res.render("staticPage/FAQs.njk");
 });
 
-router.get("/dashboard/Unilib/Book", checkRestrictionFromTable, async (req, res) => {
+router.get("/dashboard/Unilib/Book", async (req, res) => {
   try {
     const result = await getAllBooks();
     res.json(result);
@@ -619,64 +663,54 @@ router.get("/dashboard/Unilib/Book", checkRestrictionFromTable, async (req, res)
   }
 });
 
-router.get(
-  "/dashboard/Unilib/QuizAss",
-  checkRestrictionFromTable,
-  validateSession,
-  async (req, res) => {
-    try {
-      const result = await getAllQuizAss();
-      res.json(result);
-    } catch (err) {
-      res.status(500).send("Internal Server Error: " + err);
-    }
+router.get("/dashboard/Unilib/QuizAss", validateSession, async (req, res) => {
+  try {
+    const result = await getAllQuizAss();
+    res.json(result);
+  } catch (err) {
+    res.status(500).send("Internal Server Error: " + err);
   }
-);
+});
 
-router.post(
-  "/post/Unilib/QuizAss",
-  checkRestrictionFromTable,
-  validateSession,
-  async (req, res) => {
-    const { issueDate, dueDate, subject, description } = req.body;
+router.post("/post/Unilib/QuizAss", validateSession, async (req, res) => {
+  const { issueDate, dueDate, subject, description } = req.body;
 
-    if (!issueDate || !dueDate || !subject || !description) {
-      return res
-        .status(400)
-        .json({ success: false, message: "All fields are required" });
-    }
-
-    try {
-      // Utility function to align the sequence
-      const alignSequence = async () => {
-        const maxIdResult = await pool.query(
-          "SELECT MAX(id) AS max_id FROM quizass"
-        );
-        const maxId = maxIdResult.rows[0].max_id || 0; // Default to 0 if the table is empty
-        await pool.query(
-          "SELECT setval(pg_get_serial_sequence('quizass', 'id'), $1)",
-          [maxId]
-        );
-      };
-
-      // Align the sequence before inserting
-      await alignSequence();
-
-      // Insert the new record
-      const query =
-        'INSERT INTO "quizass" ("issueDate", "dueDate", "subject", "description") VALUES ($1, $2, $3, $4) RETURNING *';
-      const values = [issueDate, dueDate, subject, description];
-      const result = await pool.query(query, values);
-
-      res.status(201).json({ success: true, data: result.rows[0] });
-    } catch (err) {
-      console.error("Database query error:", err);
-      res
-        .status(500)
-        .json({ success: false, message: "Internal Server Error" });
-    }
+  if (!issueDate || !dueDate || !subject || !description) {
+    return res
+      .status(400)
+      .json({ success: false, message: "All fields are required" });
   }
-);
+
+  try {
+    // Utility function to align the sequence
+    const alignSequence = async () => {
+      const maxIdResult = await pool.query(
+        "SELECT MAX(id) AS max_id FROM quizass"
+      );
+      const maxId = maxIdResult.rows[0].max_id || 0; // Default to 0 if the table is empty
+      await pool.query(
+        "SELECT setval(pg_get_serial_sequence('quizass', 'id'), $1)",
+        [maxId]
+      );
+    };
+
+    // Align the sequence before inserting
+    await alignSequence();
+
+    // Insert the new record
+    const query =
+      'INSERT INTO "quizass" ("issueDate", "dueDate", "subject", "description") VALUES ($1, $2, $3, $4) RETURNING *';
+    const values = [issueDate, dueDate, subject, description];
+    const result = await pool.query(query, values);
+
+    res.status(201).json({ success: true, data: result.rows[0] });
+  } catch (err) {
+    console.error("Database query error:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+});
 
 router.post('/post/donations/submit', upload.single('paymentProof'), async (req, res) => {
   try {
@@ -734,47 +768,65 @@ router.post('/post/donations/submit', upload.single('paymentProof'), async (req,
   }
 });
 
-router.get(
-  "/dashboard/addNewUser",
-  validateSession,
-  checkRolePermission("SuperAdmin"),
+router.get("/dashboard/addNewUser", validateSession, checkRolePermission("SuperAdmin"), async (req, res) => {
+  res.render("mainPages/register.njk");
+});
 
-  async (req, res) => {
-    res.render("mainPages/register.njk");
-  }
-);
+router.get("/api/db/table/Users", validateSession, checkRolePermission("SuperAdmin"), async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT "id","UserName","Active","FullName","Role","HaveMailAccount","userRestriction" FROM "Users"'
+    );
+    let user = result;
+    if (user) {
+      user = user.rows;
 
-router.get(
-  "/api/db/table/Users",
-  validateSession,
-  checkRolePermission("SuperAdmin"),
-  async (req, res) => {
-    try {
-      const result = await pool.query(
-        'SELECT "id","UserName","Active","FullName","Role","HaveMailAccount","userRestriction" FROM "Users"'
-      );
-      let user = result;
-      if (user) {
-        user = user.rows;
+      res.status(400).json({ user });
 
-        res.status(400).json({ user });
-
-        console.log(user.rows);
-        /*res.render("mainPages/home.njk", {
-          user: req.session.user,
-          role: user.Role,
-          FullName: user.FullName,
-        });*/
-      } else {
-        res.status(400).json({ success: false, message: "User not found" });
-      }
-    } catch (err) {
-      console.error("Database query error:", err);
-      res
-        .status(500)
-        .json({ success: false, message: "Internal Server Error" });
+      console.log(user.rows);
+      /*res.render("mainPages/home.njk", {
+        user: req.session.user,
+        role: user.Role,
+        FullName: user.FullName,
+      });*/
+    } else {
+      res.status(400).json({ success: false, message: "User not found" });
     }
+  } catch (err) {
+    console.error("Database query error:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
+}
 );
+
+router.post("/copy", authenticate(process.env.Main_SECRET_TOKEN), (req, res) => {
+  const neonConnectionString = process.env.NEON_POSTGRES;
+  const localConnectionString = process.env.LOCAL_POSTGRES;
+
+  if (!neonConnectionString || !localConnectionString) {
+    console.error("Missing Neon or local PostgreSQL connection string in environment.");
+    return res
+      .status(500)
+      .json({ error: "Missing Neon or local PostgreSQL connection string in environment." });
+  }
+
+  // Using full paths for Windows
+  const pgDumpPath = `"D:\\Programs\\PostgreSQL\\17\\bin\\pg_dump.exe"`;
+  const psqlPath = `"D:\\Programs\\PostgreSQL\\17\\bin\\psql.exe"`;
+  const command = `${pgDumpPath} "${neonConnectionString}" | ${psqlPath} "${localConnectionString}"`;
+
+  console.log("Executing command:", command);
+
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Error copying DB:", error);
+      return res.status(500).json({ error: error.message, stderr });
+    }
+    console.log("Database copied successfully");
+    res.json({ message: "Database copied successfully", output: stdout });
+  });
+});
 
 export default router;

@@ -39,10 +39,6 @@ body {
     flex-direction: column;
 }
 
-
-/* About Section Styling */
-
-
 /* Those Elements Where We Have Apply Same CSS,
  I'm Selecting Directly 'Section Tag' and 'Class'  */
 
@@ -53,10 +49,6 @@ section {
 section .content {
     margin: 40px auto;
     font-family: 'Poppins', sans-serif;
-}
-
-.about {
-    height: 100%;
 }
 
 .about .about-details {
@@ -96,42 +88,13 @@ section .title span::after {
     width: 70%;
     left: 50%;
     transform: translateX(-50%);
-}
+} 
 
-
-/* Footer CSS */
-
-footer {
-    background: #377a77;
-    padding: 15px 5px;
-    text-align: center;
-    font-family: 'Poppins', sans-serif;
-}
-
-footer .text span {
-    font-size: 17px;
-    font-weight: 400;
-    color: #fff;
-}
-
-footer .text span a {
-    font-weight: 500;
-    color: #FFF;
-    transition: all 0.3s ease;
-}
-
-footer .text span a:hover {
-    text-decoration: underline;
-    color: #c4c6ce;
-    transition: all 0.3s ease;
-}
-
-p,
-h4,
-h3 {
+.maincssp,
+.maincssh4,
+.maincssh3 {
     text-align: center;
 }
-
 
 section .content {
     margin: 0px auto;

@@ -38,22 +38,22 @@
                 color: #ffffff;
                 margin-bottom: 20px;
             }
-            p {
+            .pDomNote {
                 color: #cccccc;
                 margin-bottom: 25px;
             }
-            .amount {
+            .amountDomNote {
                 font-size: 1.2em;
                 color: #377a77;
                 font-weight: bold;
                 margin: 20px 0;
             }
-            .note {
+            .noteBottomDom {
                 font-size: 0.9em;
                 color: #888888;
-                margin-top: 30px;
+                margin-top: 20px;
             }
-            .due-date {
+            .due-dateDomNote {
                 font-size: 1em;
                 color: #f0ad4e;
                 font-weight: bold;
@@ -91,7 +91,7 @@
             .close-button:hover {
                 color: #ff0000;
             }
-            .timer {
+            .timerNoteDOm {
                 position: absolute;
                 top: 10px;
                 right: 10px;
@@ -101,21 +101,18 @@
                 border-radius: 5px;
                 font-size: 14px;
             }
-            .note.s {
-                margin-bottom: 0px;
-            }
         </style>
     </head>
     <body>
         <div class="blurWindow">
             <div class="donation-container">
                 <button class="close-button" onclick="closePopup()">&times;</button>
-                <div class="timer" id="timer">5</div>
+                <div class="timerNoteDOm" id="timer">5</div>
                 <h1>Help Us Keep Our Domain Active</h1>
-                <p>Dear valued user,</p>
-                <p>To maintain our online presence and continue providing services, we need your support for our annual domain name
+                <p class="pDomNote">Dear valued user,</p>
+                <p class="pDomNote">To maintain our online presence and continue providing services, we need your support for our annual domain name
                     renewal. The required amount for this year is:</p>
-                <div class="amount">
+                <div class="amountDomNote">
                     $17.16 / 4,800 PKR
                 </div>
                 <div class="progress-container">
@@ -124,13 +121,13 @@
                 <div class="collected-amount">
                     Collected: $3.59 / 17.16 (1,000 PKR / 4,800 PKR)
                 </div>
-                <p>If you find our services valuable and are in a position to support us, please consider contributing towards this
+                <p class="pDomNote">If you find our services valuable and are in a position to support us, please consider contributing towards this
                     essential cost. Every contribution brings us closer to our goal!</p>
-                <div class="due-date">
+                <div class="due-dateDomNote">
                     Due Date: May 01, 2025
                 </div>
                 <a onclick="setCookie('donationNotice', 'true', 1);" href="/donation/submit/" class="buttons" style="font-size: 1.3em;">Contribute Now</a>
-                <p class="note s">Note: This contribution is specifically for this year's domain renewal. Thank you for helping us stay
+                <p class="noteBottomDom">Note: This contribution is specifically for this year's domain renewal. Thank you for helping us stay
                     online!</p>
             </div>
         </div>
@@ -157,7 +154,8 @@
             let countdown = 5;
             // Check if the donationNotice cookie is set to true
             const donationNoticeCookie = getCookie('donationNotice');
-            if (donationNoticeCookie === 'true' || getCookieValue("userRole") === "SuperAdmin") { // if (true) {
+            // if (donationNoticeCookie === 'true' || getCookieValue("userRole") === "SuperAdmin") { 
+            if (true) {
                 blurWindow.style.display = 'none'; // Hide the popup
                 document
                     .body
