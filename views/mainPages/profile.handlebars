@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <title>User Profile</title>
+    </head>
+    <style>
+        .admin {
+            color: goldenrod;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        .badge {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .info-icon-j {
+            margin-left: 8px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: underline;
+            transition: color 0.3s;
+        }
+        .info-icon:hover {
+            color: #dfdfdf;
+        }
+        .demo {
+            background-color: rgb(180, 50, 40);
+            color: #fff;
+        }
+        .guest {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+        .normal-user {
+            background-color: #95a5a6;
+            color: #fff;
+        }
+        .super-admin {
+            background-color: purple;
+            color: #fff;
+        }
+        .normal-admin {
+            background-color: #27ae60;
+            color: #fff;
+        }
+        .tooltip {
+            display: none;
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-left: 30%;
+            z-index: 10;
+            width: 180px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .note {
+            font-size: 13px;
+            color: #e74c3c;
+            margin-top: 5px;
+            display: none;
+        }
+        .note.no-mail-account {
+            display: block;
+        }
+        @media(max-width: 600px) {
+            .profile-container {
+                padding: 15px;
+            }
+            .tooltip {
+                width: 150px;
+            }
+            .profile-header h2 {
+                font-size: 20px;
+            }
+            .form-group label {
+                font-size: 14px;
+            }
+            .form-group input,
+            .form-group textarea {
+                font-size: 14px;
+            }
+            .buttons {
+                font-size: 14px;
+            }
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        .profile-container {
+            display: none;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #f39c12;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+    {{> header }}
+    <body>
+        <br><br>
+        <section class="about" id=".">
+            <div class="content">
+                <div id="loader" class="loader">
+                    <div class="spinner"></div>
+                </div>
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <h2>User Profile</h2>
+                    </div>
+                    <div class="profile-details">
+                        <form class="profile-form">
+                            <div class="form-group">
+                                <label for="username">
+                                    <strong>Username:</strong>
+                                </label>
+                                <input type="text" id="username" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="fullname">
+                                    <strong>Full Name:</strong>
+                                </label>
+                                <input type="text" id="fullname" readonly>
+                            </div>
+                            <div class="form-group role-group">
+                                <label for="sAdmin">
+                                    <strong>Role:</strong>
+                                </label>
+                                <span id="roleBadge" class="badge">
+                                    <span id="roleText"></span>
+                                    <i id="infoButton" class="info-icon-j fas fa-info-circle"></i>
+                                    <div id="roleTooltip" class="tooltip"></div>
+                                </span>
+                            </div>
+                            <div class="form-group role-group">
+                                <label for="permittedActions">
+                                    <strong>Permitted Actions:</strong>
+                                </label>
+                                <textarea id="permittedActions" rows="5" class="badge" readonly></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="mailAccount">
+                                    <strong>Mail Account:</strong>
+                                </label>
+                                <input type="text" id="mailAccount" readonly>
+                                <p id="mailNote" class="note"></p>
+                            </div>
+                            <div class="form-group">
+                                <a class="buttons" type="button" id="logoutButton">Logout</a>
+                            </div>
+                            <div class="form-group">
+                                <a class="buttons" href="/home">Back To Home</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+    <script>
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            const confirmation = confirm("Are you sure you want to logout?");
+            if (! confirmation) 
+                return;
+            
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    window.location.reload();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+                alert('Logout failed');
+            }
+        });
+        const userData = {{{user}}};
+        console.log(userData);
+        async function fetchProfile() {
+            document.getElementById('permittedActions').value = "Read /home \nRead /user/profile \nRead /dashboard/Roles&Members \n";
+            const loader = document.getElementById('loader');
+            const profileContainer = document.querySelector('.profile-container');
+            if (userData) {
+                document.getElementById('username').value = userData.UserName;
+                document.getElementById('fullname').value = userData.FullName;
+                document.getElementById('mailAccount').value = userData.UserName + '@mbktechstudio.com';
+                const roleBadge = document.getElementById('roleBadge');
+                const roleText = document.getElementById('roleText');
+                const infoButton = document.getElementById('infoButton');
+                const roleTooltip = document.getElementById('roleTooltip');
+                // Clear previous styles
+                roleBadge.classList.remove('super-admin', 'normal-admin', 'normal-user', "guest", "demo");
+                // Check user role and set the appropriate badge and tooltip text
+                switch (userData.Role) {
+                    case 'SuperAdmin': roleText.textContent = "Super Admin";
+                        roleBadge.classList.add('super-admin');
+                        roleTooltip.textContent = "Super Admin has full access to all system functionalities, including database control and administrative tasks.";
+                        break;
+                    case 'NormalAdmin': roleText.textContent = "Normal-Admin";
+                        roleBadge.classList.add('normal-admin');
+                        roleTooltip.textContent = "Normal Admin has full access to all system functionalities except database.";
+                        break;
+                    case 'NormalUser': roleText.textContent = "Normal User";
+                        roleBadge.classList.add('normal-user');
+                        roleTooltip.textContent = "Normal User has limited write permissions and full read access to the system.";
+                        break;
+                    case 'Guest': roleText.textContent = "Guest";
+                        roleBadge.classList.add('guest');
+                        roleTooltip.textContent = "Guest has access to specific pages and limited functionalities and services.";
+                        break;
+                    case 'Demo': roleText.textContent = "Demo";
+                        roleBadge.classList.add('demo');
+                        roleTooltip.textContent = "Demo has access to only main pages.";
+                        break;
+                    default: roleText.textContent = "Unknown Role";
+                        roleTooltip.textContent = "Unknown Role";
+                }
+                infoButton.addEventListener('mouseenter', () => {
+                    roleTooltip.style.display = 'block'; // Show tooltip on hover
+                });
+                infoButton.addEventListener('mouseleave', () => {
+                    roleTooltip.style.display = 'none'; // Hide tooltip when not hovering
+                });
+                // Optional: Make the tooltip visible on tap for mobile devices
+                infoButton.addEventListener('touchstart', () => {
+                    roleTooltip.style.display = 'block'; // Show tooltip on touch
+                });
+                infoButton.addEventListener('touchend', () => {
+                    roleTooltip.style.display = 'none'; // Hide tooltip on touch end
+                });
+                if (! userData.HaveMailAccount) {
+                    document
+                        .getElementById('mailAccount')
+                        .style
+                        .textDecoration = 'line-through';
+                    document.getElementById('mailNote').textContent = "You do not have a mail account. Please contact the Super Admin for assistance.";
+                    document
+                        .getElementById('mailNote')
+                        .classList
+                        .add('no-mail-account');
+                } else {
+                    document
+                        .getElementById('mailAccount')
+                        .style
+                        .textDecoration = 'none';
+                }
+                // Hide the loader and show the profile form
+                loader.style.display = 'none';
+                profileContainer.style.display = 'block';
+            } else {
+                console.error('Error fetching profile:', data.message);
+            }
+        }
+        fetchProfile();
+    </script>
+    {{> footer }}
+</html>

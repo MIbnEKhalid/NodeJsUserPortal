@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <title>User Profile</title>
+        <!-- Ideally move styles to an external CSS file -->
+        <style>
+            .admin {
+                color: goldenrod;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            .info-icon-j {
+                margin-left: 8px;
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 16px;
+                cursor: pointer;
+                padding: 0;
+                text-decoration: underline;
+                transition: color 0.3s;
+            }
+            .info-icon:hover {
+                color: #dfdfdf;
+            }
+            .tooltip {
+                display: none;
+                position: absolute;
+                background-color: #333;
+                color: #fff;
+                padding: 8px;
+                border-radius: 5px;
+                font-size: 12px;
+                margin-left: 30%;
+                z-index: 10;
+                width: 180px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            }
+            .note {
+                font-size: 15px;
+                color: rgb(228, 231, 60);
+                margin-top: 5px;
+                display: block;
+            }
+            @media(max-width: 600px) {
+                .profile-container {
+                    padding: 15px;
+                }
+                .tooltip {
+                    width: 150px;
+                }
+                .profile-header h2 {
+                    font-size: 20px;
+                }
+                .buttons {
+                    font-size: 14px;
+                }
+            }
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            .profile-container {
+                display: block;
+            }
+            .spinner {
+                width: 50px;
+                height: 50px;
+                border: 6px solid #f3f3f3;
+                border-top: 6px solid #f39c12;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+            .loader {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .WarningboxInfo {
+                font-family: 'Open Sans', sans-serif;
+                background-color: rgba(255, 243, 205, 0.8); /* Warning background color */
+                color: #856404; /* Warning text color */
+                padding: 5px 20px;
+                border: 1px solid #ffeeba; /* Warning border color */
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                font-size: 14px;
+                z-index: 900;
+                font-weight: bold;
+                margin-top: 5px;
+                text-align: center;
+            }
+        </style>
+    </head>
+    {{> header }}
+    <body>
+        <br><br>
+        <section class="about" id=".">
+            <div class="content">
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <h2>Generate API Authentication</h2>
+                    </div>
+                    <div class="profile-details">
+                        <form class="profile-form">
+                            <p>
+                                <strong>Why You Need This API Key?</strong>
+                            </p>
+                            <p style="font-size: 0.875rem; color: rgb(202, 208, 222);">
+                                This API key allows you to authenticate your requests to the organization's services. It is unique to you and must be
+                                kept confidential. Do not share this key with anyone.
+                            </p>
+                            <div class="form-group" style="position: relative;">
+                                <label for="authapikey">
+                                    <strong>API Key</strong>
+                                </label>
+                                <input type="text" onclick="copyApiKey()" value="{{ userApiAuthenticationApi }}" id="authapikey" style="padding-right: 40px;" readonly>
+                                <a
+                                    id="copyButton"
+                                    onclick="copyApiKey()"
+                                    style=" position: absolute; right: 5px; top: 70%; transform: translateY(-50%); background: none; border: none; cursor:
+                                        pointer; font-size: 20px;"
+                                    title="Copy API Key">
+                                    📋
+                                </a>
+                            </div>
+                            <p id="date" style="font-size: 0.875rem; color: rgb(202, 208, 222); margin-top:-15px;"></p>
+                            <script>
+                                function reloadTime(date) {
+                                    if (date) {
+                                        const TimeStamp = date;
+                                        document.getElementById('date').textContent = `Generated on: ${TimeStamp}`;
+                                    }
+                                }
+                                reloadTime(`{{ timeStamp }}`);
+                            </script>
+                            {{#if (eq username "demo")}}
+                                <div class="WarningboxInfo">
+                                    Demo users can generate an API key but cannot use it to authenticate APIs.
+                                </div>
+                            {{/if}}
+                            <div class="form-group">
+                                <span class="note">
+                                    <p>
+                                        <strong>Note:</strong>
+                                        <li>If you have lost your API key, you can generate a new one by clicking the button below. But remember, the old key
+                                            will no longer be valid.</li>
+                                        <li>This Authentication API Key is unique to every user.</li>
+                                        <li>This key will only allow user to authenticate APIs that user have permission to access.</li>
+                                    </p>
+                                </span>
+                                <span style="font-size: 0.875rem; color: rgb(202, 208, 222);">
+                                    <a class="links newtab" href="https://api.mbktechstudio.com">Click Here</a>
+                                    To Open API Documentation
+                                </span>
+                                <div class="form-group" style="margin-top: 20px;">
+                                    <a class="buttons" id="generateKeyButton">
+                                        Generate New API Key</a>
+                                </div>
+                            </div>
+                            <script>
+                                function copyApiKey() {
+                                    const apiKeyInput = document.getElementById("authapikey");
+                                    apiKeyInput.select();
+                                    apiKeyInput.setSelectionRange(0, 99999); // For mobile devices
+                                    if (apiKeyInput.value !== "No Key Found, Generate New") {
+                                        navigator
+                                            .clipboard
+                                            .writeText(apiKeyInput.value)
+                                            .then(() => {
+                                                showMessage("API Key copied to clipboard!", "Success");
+                                            })
+                                            .catch(err => {
+                                                showMessage("Failed to copy API Key.", "Error");
+                                            });
+                                    }
+                                }
+                                document.getElementById('generateKeyButton').addEventListener('click', function () {
+                                    if (confirm("Are you sure you want to regenerate your API key?")) {
+                                        this.textContent = 'Generating...';
+                                        fetch('/GenerateAuthApiKey', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            }
+                                        })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.apiKey) {
+                                                    document.getElementById('authapikey').value = data.apiKey;
+                                                    showMessage('New API Key generated and copied to clipboard!', 'Success');
+                                                    reloadTime(data.date);
+                                                    navigator.clipboard.writeText(data.apiKey);
+                                                } else {
+                                                    showMessage('Failed to generate API Key.', 'Error');
+                                                }
+                                                this.textContent = 'Generate New API Key';
+                                            })
+                                            .catch(error => {
+                                                console.error('Error:', error);
+                                                alert('An error occurred while generating the API Key.');
+                                                showMessage(`Error: ${error}`, 'Error');
+                                                this.textContent = 'Generate New API Key';
+                                            });
+                                    }
+                                });
+                            </script>
+                            <div class="form-group">
+                                <a class="buttons" href="/home">Back To Home</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </body>
+    </body>
+</html></section></body>{{> footer }}</html>

@@ -375,7 +375,7 @@ input[type="number"] {
 }
 
 
-.blurWindow {
+.showMessageblurWindow {
     position: fixed;
     top: 0;
     left: 0;
@@ -389,11 +389,11 @@ input[type="number"] {
     backdrop-filter: blur(5px);
 }
 
-.blurWindow.active {
+.showMessageblurWindow.active {
     display: flex;
 }
 
-.blurWindow.fade-out {
+.showMessageblurWindow.fade-out {
     animation: fadeOut 0.5s ease-in-out forwards;
 }
 
@@ -401,7 +401,7 @@ body.blur-active {
     overflow: hidden;
 }
 
-.messageWindow {
+.showmessageWindow {
     font-family: 'Roboto', sans-serif;
     background: linear-gradient(135deg, #000, #111);
     padding: 20px 30px;
@@ -415,7 +415,7 @@ body.blur-active {
     animation: fadeIn 0.5s ease-in-out;
 }
 
-.messageWindow h1 {
+.showmessageWindow h1 {
     font-family: 'Roboto', sans-serif;
     margin-top: 0;
     font-size: 30px;
@@ -425,14 +425,14 @@ body.blur-active {
     margin-bottom: 10px;
 }
 
-.messageWindow p {
+.showmessageWindow p {
     font-family: 'Roboto', sans-serif;
     font-size: 18px;
     text-align: center;
     color: #ddd;
 }
 
-.messageWindow .close-btn {
+.showmessageWindow .close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -444,7 +444,7 @@ body.blur-active {
     transition: color 0.3s;
 }
 
-.messageWindow .close-btn:hover {
+.showmessageWindow .close-btn:hover {
     color: #fff;
 }
 

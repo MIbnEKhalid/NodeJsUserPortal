@@ -1,6 +1,6 @@
 # Portal Mbk Tech Studio
 
-**Note:** For an enhanced editing experience in Visual Studio Code, install the `Nunjucks Templates` extension to better view and edit `.njk` files.
+**Note:** For an enhanced editing experience in Visual Studio Code, install the `Nunjucks Templates` extension to better view and edit `.handlebars ` files.
 
 ## File & Folder Structure
 ```
@@ -44,46 +44,46 @@ D:.
 |
 \---views
     +---mainPages
-    |   |   adminDashboard.njk
-    |   |   home.njk
-    |   |   profile.njk
-    |   |   register.njk
-    |   |   Roles&Members.njk
-    |   |   Userfeedback.njk
+    |   |   adminDashboard.handlebars 
+    |   |   home.handlebars 
+    |   |   profile.handlebars 
+    |   |   register.handlebars 
+    |   |   Roles&Members.handlebars 
+    |   |   Userfeedback.handlebars 
     |   |
     |   \---Unilib
-    |           quizass.njk
+    |           quizass.handlebars 
     |
     +---notice
-    |   |   alreadyloggedin.njk
-    |   |   demoAccountNotice.njk
-    |   |   subAdmin.njk
+    |   |   alreadyloggedin.handlebars 
+    |   |   demoAccountNotice.handlebars 
+    |   |   subAdmin.handlebars 
     |   |
     |   \---donation
-    |           domainRenew.njk
-    |           formSubmit.njk
+    |           domainRenew.handlebars 
+    |           formSubmit.handlebars 
     |
     +---script
-    |       showmessage.njk
+    |       showmessage.handlebars 
     |
     +---staticPage
-    |       404.njk
-    |       FAQs.njk
-    |       index.njk
-    |       login.njk
-    |       Terms&Conditions.njk
+    |       404.handlebars 
+    |       FAQs.handlebars 
+    |       index.handlebars 
+    |       login.handlebars 
+    |       Terms&Conditions.handlebars 
     |
     \---templates
-        |   footer.njk
-        |   header.njk
-        |   header1.njk
+        |   footer.handlebars 
+        |   header.handlebars 
+        |   header1.handlebars 
         |
         \---Error
-                AccessDenied.njk
-                AccessResstricted.njk
-                AccountInactive.njk
-                NotLoggedIn.njk
-                SessionExpire.njk
+                AccessDenied.handlebars 
+                AccessResstricted.handlebars 
+                AccountInactive.handlebars 
+                NotLoggedIn.handlebars 
+                SessionExpire.handlebars 
 ```
 
 ## API Request 
@@ -106,7 +106,7 @@ D:.
 ## To Do
  - In Donation Page find if folder is created with name of user name if exist then show detail and tell you already have history
  - in table submit path of system img path not client
- - return total amount on donation.njk by summing all confirmed trnsactions
+ - return total amount on donation.handlebars  by summing all confirmed trnsactions
  - add donation page in main pages/sidebar
  - make list pages so user can find them
 
@@ -169,7 +169,7 @@ The frontend is built using **Nunjucks**, a template syntax similar to HTML but 
 
 #### Backend (Node.js)
 ```javascript
-res.render("mainPages/home.njk", {
+res.render("mainPages/home.handlebars ", {
     user: req.session.user,
     superAdmin: user.Role,
 });
@@ -180,7 +180,7 @@ res.render("mainPages/home.njk", {
 <p class="p">User: "{{ user.username }}, a {{ superAdmin }}"</p>
 
 {% if superAdmin == "Guest" %}
-    {% include "../notice/subAdmin.njk" %}
+    {% include "../notice/subAdmin.handlebars " %}
 {% endif %}
 ```
 

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Home</title>
+    </head>
+    {{> header }}
+    <style>
+        .option {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            font-size: 16px;
+        }
+        .option option {
+            padding: 10px;
+            background-color: #fff;
+            color: #333;
+        }
+        .admin {
+            color: goldenrod;
+        }
+        * {
+            box-sizing: border-box;
+        }
+    </style>
+    <body>
+        <br><br>
+        <section class="about" id="about">
+            <div class="content">
+                <div class="title">
+                    <span>Role, Permission & Restriction Management</span>
+                </div>
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <h2>User Profile</h2>
+                    </div>
+                    <label for="user">User:</label> 
+                    <select class="option" id="user" name="user">
+                        <option value="">Select User</option> 
+                        {{#each user}}
+                            <option value="{{UserName}}">{{UserName}}</option>
+                        {{/each}} 
+                    </select>
+                    <div class="profile-details">
+                        <form class="profile-form">
+                            <div class="form-group">
+                                <label for="username">
+                                    <strong>Username:</strong>
+                                </label>
+                                <input type="text" id="username" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="fullname">
+                                    <strong>Full Name:</strong>
+                                </label>
+                                <input type="text" id="fullname" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="active">
+                                    <strong>Active:</strong>
+                                </label>
+                                <input type="text" id="active" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="role">
+                                    <strong>Role:</strong>
+                                </label>
+                                <input type="text" id="role" readonly>
+                            </div>
+                            <div class="form-group role-group">
+                                <label for="restrictedGet">
+                                    <strong>Restricted Get:</strong>
+                                </label>
+                                <textarea id="restrictedGet" rows="3" class="badge" readonly></textarea>
+                            </div>
+                            <div class="form-group role-group">
+                                <label for="restrictedPost">
+                                    <strong>Restricted Post:</strong>
+                                </label>
+                                <textarea id="restrictedPost" rows="3" class="badge" readonly></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="ChangeRole">
+                                    <strong>Change Role:</strong>
+                                </label>
+                                <select class="option" id="ChangeRole" name="ChangeRole">
+                                    <option value="NormalAdmin">NormalAdmin</option>
+                                    <option value="NormalUser">NormalUser</option>
+                                    <option value="Guest">Guest</option>
+                                </select>
+                            </div>
+                            <a class="buttons full">Assign Role</a>
+                        </form>
+                    </div>
+                    <script>
+                        document.getElementById('user').addEventListener('change', function () {
+                            console.log(this.value);
+                            var selectedUser = this.value;
+                            const userData = {{{userJ}}};
+                            console.log("ddd", userData);  
+                            var user = userData;
+                            var userInfo = user.find(u => u.UserName === selectedUser);
+                            if (userInfo) {
+                                document.getElementById('username').value = userInfo.UserName;
+                                document.getElementById('active').value = userInfo.Active;
+                                document.getElementById('fullname').value = userInfo.FullName;
+                                document.getElementById('role').value = userInfo.Role;
+                                const getRestrictions = userInfo.userRestriction.get || []; // Defaults to an empty array if not present
+                                const postRestrictions = userInfo.userRestriction.post || []; // Defaults to an empty array if not present
+                                console.log("GET Restrictions:", getRestrictions);
+                                console.log("POST Restrictions:", postRestrictions);
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+        </section>
+    </body>
+    {{> footer }}
+</html>

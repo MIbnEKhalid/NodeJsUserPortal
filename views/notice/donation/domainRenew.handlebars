@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body.no-scroll {
+                overflow: hidden;
+            }
+            .blurWindow {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                backdrop-filter: blur(5px);
+            }
+            .donation-container {
+                font-family: 'Roboto', sans-serif;
+                background: linear-gradient(135deg, #000, #111);
+                padding: 20px 15px;
+                border-radius: 15px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+                max-width: 90%;
+                width: 600px;
+                position: relative;
+                color: #fff;
+                text-align: center;
+                border: 2px solid #007bff;
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            h1 {
+                color: #ffffff;
+                margin-bottom: 20px;
+            }
+            .pDomNote {
+                color: #cccccc;
+                margin-bottom: 25px;
+            }
+            .amountDomNote {
+                font-size: 1.2em;
+                color: #377a77;
+                font-weight: bold;
+                margin: 20px 0;
+            }
+            .noteBottomDom {
+                font-size: 0.9em;
+                color: #888888;
+                margin-top: 20px;
+            }
+            .due-dateDomNote {
+                font-size: 1em;
+                color: #f0ad4e;
+                font-weight: bold;
+                margin: 20px 0;
+            }
+            .progress-container {
+                background-color: #404040;
+                border-radius: 10px;
+                height: 20px;
+                margin: 20px 0;
+            }
+            .progress-fill {
+                background-color: #377a77;
+                height: 100%;
+                border-radius: 10px;
+                width: 30%;
+            }
+            .collected-amount {
+                color: #888888;
+                font-size: 0.9em;
+                margin: 10px 0;
+            }
+            .close-button {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 30px;
+                cursor: pointer;
+                display: none;
+                transition: color 0.3s ease;
+            }
+            .close-button:hover {
+                color: #ff0000;
+            }
+            .timerNoteDOm {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: #444;
+                color: #fff;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="blurWindow">
+            <div class="donation-container">
+                <button class="close-button" onclick="closePopup()">&times;</button>
+                <div class="timerNoteDOm" id="timer">5</div>
+                <h1>Help Us Keep Our Domain Active</h1>
+                <p class="pDomNote">Dear valued user,</p>
+                <p class="pDomNote">To maintain our online presence and continue providing services, we need your support for our annual domain name
+                    renewal. The required amount for this year is:</p>
+                <div class="amountDomNote">
+                    $17.16 / 4,800 PKR
+                </div>
+                <div class="progress-container">
+                    <div class="progress-fill" style="width: 20.83%"></div>
+                </div>
+                <div class="collected-amount">
+                    Collected: $3.59 / 17.16 (1,000 PKR / 4,800 PKR)
+                </div>
+                <p class="pDomNote">If you find our services valuable and are in a position to support us, please consider contributing towards this
+                    essential cost. Every contribution brings us closer to our goal!</p>
+                <div class="due-dateDomNote">
+                    Due Date: May 01, 2025
+                </div>
+                <a onclick="setCookie('donationNotice', 'true', 1);" href="/donation/submit/" class="buttons" style="font-size: 1.3em;">Contribute Now</a>
+                <p class="noteBottomDom">Note: This contribution is specifically for this year's domain renewal. Thank you for helping us stay
+                    online!</p>
+            </div>
+        </div>
+        <script>
+            // Function to get a cookie value by name
+            function getCookie(name) {
+                const cookies = document.cookie.split(';');
+                for (const cookie of cookies) {
+                    const [key, value] = cookie.trim().split('=');
+                    if (key === name) 
+                        return value;
+                    
+                }
+                return null;
+            }
+            // Function to set a cookie
+            function setCookie(name, value, days) {
+                const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+                document.cookie = `${name}=${value}; expires=${expires}; path=/`;
+            }
+            let timerElement = document.getElementById('timer');
+            let closeButton = document.querySelector('.close-button');
+            let blurWindow = document.querySelector('.blurWindow');
+            let countdown = 5;
+            // Check if the donationNotice cookie is set to true
+            const donationNoticeCookie = getCookie('donationNotice');
+            // if (donationNoticeCookie === 'true' || getCookieValue("userRole") === "SuperAdmin") { 
+            if (true) {
+                blurWindow.style.display = 'none'; // Hide the popup
+                document
+                    .body
+                    .classList
+                    .remove('no-scroll');
+            } else {
+                document
+                    .body
+                    .classList
+                    .add('no-scroll');
+                // Countdown logic
+                let interval = setInterval(() => {
+                    countdown--;
+                    timerElement.textContent = countdown;
+                    if (countdown === 0) {
+                        clearInterval(interval);
+                        timerElement.style.display = 'none';
+                        closeButton.style.display = 'block';
+                    }
+                }, 1000);
+                // Close popup logic
+                function closePopup() {
+                    blurWindow.style.display = 'none';
+                    document
+                        .body
+                        .classList
+                        .remove('no-scroll'); // Re-enable scrolling
+                    setCookie('donationNotice', 'true', 1); // Save cookie for 30 days
+                }
+                // Attach closePopup function to the close button
+                closeButton.addEventListener('click', closePopup);
+            }
+        </script>
+    </body>
+</html>
